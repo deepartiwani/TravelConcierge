@@ -1,16 +1,46 @@
-# React + Vite
+# Smart Travel Concierge ✈️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A **React + Vite** application that acts as an intelligent travel concierge, helping users discover the best global and Indian destinations based on their chosen travel month.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Month-Based Discovery** — Select any month and receive 6 curated destinations (3 global + 3 from India) based on best-time-to-visit logic.
+- **Real-Time Data Simulation** — Simulated MCP (Model Context Protocol) services for:
+  - 🌦️ **Weather MCP** — Current temperature, conditions, UV index, and 5-day forecast.
+  - ✈️ **Travel API MCP** — Flight prices (Amadeus-style), airline options, and hotel ratings.
+- **Booking Confirmation Flow** — A 3-step modal (Itinerary Review → Explicit Consent → Booking Reference) ensures the user explicitly approves before any booking is "confirmed".
+- **Clean UI** — Built with Tailwind CSS v4 and Lucide-React icons.
 
-## React Compiler
+## Architecture
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── domain/              # Domain layer — travel logic & month-to-destination mapping
+│   ├── destinations.js  # 72 destinations (12 months × 6)
+│   └── travelLogic.js   # getDestinationsByMonth, getMonthName, getBestMonthForDestination
+│
+├── infrastructure/      # Infrastructure layer — MCP client & API wrappers
+│   ├── mcpClient.js     # MCPClient class + pre-configured instances
+│   ├── weatherService.js# Weather MCP: fetchWeatherData, fetchClimateHistory
+│   └── travelService.js # Travel MCP: fetchFlightPrices, fetchHotelRatings, generateItinerary
+│
+└── components/          # Interface layer — React UI components
+    ├── SearchBar.jsx    # Month selector + region toggle (All / India / Global)
+    ├── DestinationCard.jsx  # Card with weather, flight, hotel data + skeleton loaders
+    ├── DestinationGrid.jsx  # Responsive 3-column grid
+    ├── BookingModal.jsx     # 3-step booking confirmation modal
+    └── Dashboard.jsx        # Main orchestrator component
+```
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## Agent Instructions
+
+See [`.github/agents/travel-specialist.md`](.github/agents/travel-specialist.md) for the Travel Specialist AI agent instructions, including how to use the MCP servers, destination recommendation logic, and booking flow guidelines.
