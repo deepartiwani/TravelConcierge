@@ -104,9 +104,13 @@ function isIndianDestination(destination) {
   return false;
 }
 
-function getAirlines(destination, basePrice) {
+function getAirlines(destination, cheapestPrice) {
   const pool = isIndianDestination(destination) ? DOMESTIC_AIRLINES : INTERNATIONAL_AIRLINES;
   const selected = [...pool].sort(() => Math.random() - 0.5).slice(0, 3);
+  // Normalise so the airline with the lowest premium factor is priced at
+  // exactly cheapestPrice, keeping all other airlines proportionally higher.
+  const minFactor = Math.min(...selected.map((a) => a.premiumFactor));
+  const basePrice = cheapestPrice / minFactor;
   return selected.map((a) => ({
     name: a.name,
     price: Math.round(basePrice * a.premiumFactor),
@@ -134,7 +138,7 @@ export function fetchFlightPrices(origin = "DEL", destination, month) {
         cheapestPrice: cheapest,
         averagePrice: average,
         currency: isIndianDestination(destination) ? "INR" : "USD",
-        airlines: getAirlines(destination, average),
+        airlines: getAirlines(destination, cheapest),
         bookingClass: "Economy",
       });
     }, 1000);
