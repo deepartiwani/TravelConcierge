@@ -127,54 +127,6 @@ function ItineraryStep({ destination, weatherData, flightData, hotelData, itiner
             <p className="text-sm text-gray-400">Loading…</p>
           )}
         </div>
-        {hotelData ? (
-          <div className="space-y-2">
-            {hotelData.hotels?.map((hotel) => (
-              <button
-                key={hotel.name}
-                onClick={() => onSelectHotel(hotel)}
-                className={[
-                  "w-full text-left px-4 py-3 rounded-xl border-2 transition-all",
-                  selectedHotel?.name === hotel.name
-                    ? "border-amber-500 bg-amber-50 shadow-sm"
-                    : "border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-50/40",
-                ].join(" ")}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-bold text-gray-800">{hotel.name}</p>
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${HOTEL_TYPE_STYLES[hotel.type] ?? "bg-gray-100 text-gray-600"}`}>
-                        {hotel.type}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {hotel.amenities.slice(0, 3).map((amenity) => (
-                        <span key={amenity} className="text-xs text-gray-500 bg-gray-100 rounded-full px-2 py-0.5">
-                          {amenity}
-                        </span>
-                      ))}
-                      {hotel.amenities.length > 3 && (
-                        <span className="text-xs text-gray-400 px-1">+{hotel.amenities.length - 3} more</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-base font-bold text-amber-700">
-                      {formatCurrency(hotel.pricePerNight, hotelData.currency)}
-                    </p>
-                    <p className="text-xs text-gray-500">/night</p>
-                    <p className="text-xs text-gray-600 mt-0.5">⭐ {hotel.rating}</p>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-gray-400 px-1">Loading hotels…</p>
-        )}
-      </div>
-
       {/* Airlines */}
       {flightData?.airlines && (
         <div>
