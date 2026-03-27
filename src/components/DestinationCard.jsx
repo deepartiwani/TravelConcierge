@@ -1,4 +1,5 @@
 import { MapPin, Thermometer, Star, Plane, Hotel, Tag, ChevronRight } from "lucide-react";
+import { formatCurrency } from "../utils/currency";
 
 function Skeleton({ className }) {
   return <div className={`animate-pulse bg-gray-200 rounded ${className}`} />;
@@ -104,9 +105,9 @@ export default function DestinationCard({
               <span>
                 From{" "}
                 <span className="font-semibold text-gray-800">
-                  ${flightData.cheapestPrice}
+                  {formatCurrency(flightData.cheapestPrice, flightData.currency)}
                 </span>{" "}
-                USD
+                {flightData.currency}
               </span>
             )}
           </div>

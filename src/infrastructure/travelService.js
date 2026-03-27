@@ -3,61 +3,70 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December",
 ];
 
+// Indian destination keys — used to determine currency (INR vs USD)
+const INDIAN_DESTINATION_KEYS = new Set([
+  "Goa", "Jaipur", "Kerala", "Agra", "Hampi", "Andaman", "Mathura",
+  "Rishikesh", "Munnar", "Darjeeling", "Ooty", "Coorg", "Leh", "Spiti",
+  "Manali", "Meghalaya", "Sikkim", "Rajasthan", "Kullu", "Mysuru",
+  "Pushkar", "Pondicherry", "Rann", "Auli",
+]);
+
 // Base price ranges per destination category
+// Indian destinations use INR; all others use USD
 const PRICE_PROFILES = {
-  // International luxury
-  Maldives:       { min: 800,  avg: 1100 },
-  Iceland:        { min: 700,  avg: 950  },
-  Switzerland:    { min: 650,  avg: 900  },
-  "New Zealand":  { min: 900,  avg: 1200 },
-  Norway:         { min: 700,  avg: 950  },
-  // International mid-range
-  Japan:          { min: 550,  avg: 750  },
-  Italy:          { min: 450,  avg: 650  },
-  Greece:         { min: 400,  avg: 600  },
-  Portugal:       { min: 350,  avg: 500  },
-  France:         { min: 450,  avg: 650  },
-  Croatia:        { min: 400,  avg: 580  },
-  Turkey:         { min: 300,  avg: 450  },
-  Peru:           { min: 600,  avg: 850  },
-  Jordan:         { min: 500,  avg: 700  },
-  Morocco:        { min: 350,  avg: 500  },
-  Scotland:       { min: 400,  avg: 580  },
-  Canada:         { min: 700,  avg: 950  },
-  // SE Asia & affordable
-  Bali:           { min: 350,  avg: 500  },
-  Thailand:       { min: 300,  avg: 450  },
-  Vietnam:        { min: 280,  avg: 420  },
-  // Long-haul
-  Australia:      { min: 900,  avg: 1250 },
-  "South Africa": { min: 650,  avg: 900  },
-  Egypt:          { min: 450,  avg: 650  },
-  "United States":{ min: 700,  avg: 950  },
-  // India domestic
-  Goa:            { min: 80,   avg: 160  },
-  Jaipur:         { min: 60,   avg: 120  },
-  Kerala:         { min: 80,   avg: 160  },
-  Agra:           { min: 50,   avg: 100  },
-  Hampi:          { min: 60,   avg: 110  },
-  Andaman:        { min: 150,  avg: 280  },
-  Mathura:        { min: 50,   avg: 90   },
-  Rishikesh:      { min: 55,   avg: 100  },
-  Munnar:         { min: 80,   avg: 150  },
-  Darjeeling:     { min: 90,   avg: 170  },
-  Ooty:           { min: 70,   avg: 130  },
-  Coorg:          { min: 80,   avg: 150  },
-  Leh:            { min: 120,  avg: 220  },
-  Spiti:          { min: 130,  avg: 230  },
-  Manali:         { min: 80,   avg: 150  },
-  Meghalaya:      { min: 100,  avg: 180  },
-  Sikkim:         { min: 110,  avg: 200  },
-  Rajasthan:      { min: 70,   avg: 130  },
-  Kullu:          { min: 90,   avg: 160  },
-  Mysuru:         { min: 70,   avg: 130  },
-  Pushkar:        { min: 65,   avg: 120  },
-  Pondicherry:    { min: 75,   avg: 140  },
-  Rann:           { min: 100,  avg: 190  },
-  Auli:           { min: 110,  avg: 200  },
+  // International luxury (USD)
+  Maldives:       { min: 800,   avg: 1100  },
+  Iceland:        { min: 700,   avg: 950   },
+  Switzerland:    { min: 650,   avg: 900   },
+  "New Zealand":  { min: 900,   avg: 1200  },
+  Norway:         { min: 700,   avg: 950   },
+  // International mid-range (USD)
+  Japan:          { min: 550,   avg: 750   },
+  Italy:          { min: 450,   avg: 650   },
+  Greece:         { min: 400,   avg: 600   },
+  Portugal:       { min: 350,   avg: 500   },
+  France:         { min: 450,   avg: 650   },
+  Croatia:        { min: 400,   avg: 580   },
+  Turkey:         { min: 300,   avg: 450   },
+  Peru:           { min: 600,   avg: 850   },
+  Jordan:         { min: 500,   avg: 700   },
+  Morocco:        { min: 350,   avg: 500   },
+  Scotland:       { min: 400,   avg: 580   },
+  Canada:         { min: 700,   avg: 950   },
+  // SE Asia & affordable (USD)
+  Bali:           { min: 350,   avg: 500   },
+  Thailand:       { min: 300,   avg: 450   },
+  Vietnam:        { min: 280,   avg: 420   },
+  // Long-haul (USD)
+  Australia:      { min: 900,   avg: 1250  },
+  "South Africa": { min: 650,   avg: 900   },
+  Egypt:          { min: 450,   avg: 650   },
+  "United States":{ min: 700,   avg: 950   },
+  // India domestic (INR)
+  Goa:            { min: 6500,  avg: 13000 },
+  Jaipur:         { min: 5000,  avg: 10000 },
+  Kerala:         { min: 6500,  avg: 13000 },
+  Agra:           { min: 4000,  avg: 8000  },
+  Hampi:          { min: 5000,  avg: 9000  },
+  Andaman:        { min: 12500, avg: 23000 },
+  Mathura:        { min: 4000,  avg: 7500  },
+  Rishikesh:      { min: 4500,  avg: 8500  },
+  Munnar:         { min: 6500,  avg: 12500 },
+  Darjeeling:     { min: 7500,  avg: 14000 },
+  Ooty:           { min: 6000,  avg: 11000 },
+  Coorg:          { min: 6500,  avg: 12500 },
+  Leh:            { min: 10000, avg: 18000 },
+  Spiti:          { min: 11000, avg: 19000 },
+  Manali:         { min: 6500,  avg: 12500 },
+  Meghalaya:      { min: 8500,  avg: 15000 },
+  Sikkim:         { min: 9000,  avg: 17000 },
+  Rajasthan:      { min: 6000,  avg: 11000 },
+  Kullu:          { min: 7500,  avg: 13000 },
+  Mysuru:         { min: 6000,  avg: 11000 },
+  Pushkar:        { min: 5500,  avg: 10000 },
+  Pondicherry:    { min: 6000,  avg: 12000 },
+  Rann:           { min: 8500,  avg: 16000 },
+  Auli:           { min: 9000,  avg: 17000 },
 };
 
 // Airline rosters
@@ -88,17 +97,20 @@ function getPriceProfile(destination) {
   return { min: 300, avg: 500 };
 }
 
-function isDomestic(destination) {
-  return getPriceProfile(destination).avg < 300;
+function isIndianDestination(destination) {
+  for (const key of INDIAN_DESTINATION_KEYS) {
+    if (destination.toLowerCase().includes(key.toLowerCase())) return true;
+  }
+  return false;
 }
 
 function getAirlines(destination, basePrice) {
-  const pool = isDomestic(destination) ? DOMESTIC_AIRLINES : INTERNATIONAL_AIRLINES;
+  const pool = isIndianDestination(destination) ? DOMESTIC_AIRLINES : INTERNATIONAL_AIRLINES;
   const selected = [...pool].sort(() => Math.random() - 0.5).slice(0, 3);
   return selected.map((a) => ({
     name: a.name,
     price: Math.round(basePrice * a.premiumFactor),
-    duration: isDomestic(destination)
+    duration: isIndianDestination(destination)
       ? `${1 + Math.floor(Math.random() * 2)}h ${Math.floor(Math.random() * 60)}m`
       : `${7 + Math.floor(Math.random() * 10)}h ${Math.floor(Math.random() * 60)}m`,
   }));
@@ -121,7 +133,7 @@ export function fetchFlightPrices(origin = "DEL", destination, month) {
         month: monthName,
         cheapestPrice: cheapest,
         averagePrice: average,
-        currency: "USD",
+        currency: isIndianDestination(destination) ? "INR" : "USD",
         airlines: getAirlines(destination, average),
         bookingClass: "Economy",
       });
@@ -144,16 +156,16 @@ const HOTEL_DATA = {
     { name: "Adiwana Jembawan", type: "Budget", pricePerNight: 90,  amenities: ["Rice Field View", "Breakfast Included", "Wi-Fi"] },
   ],
   Goa: [
-    { name: "Taj Holiday Village", type: "Luxury",  pricePerNight: 220, amenities: ["Private Beach", "Pool", "Spa", "Watersports"] },
-    { name: "W Goa",               type: "Luxury",  pricePerNight: 280, amenities: ["Infinity Pool", "DJ Nights", "Beach Club"] },
-    { name: "Pousada Tauma",        type: "Boutique",pricePerNight: 120, amenities: ["Quiet Pool", "Garden", "Home-Style Dining"] },
-    { name: "Zostel Goa",          type: "Budget",  pricePerNight: 18,  amenities: ["Dorms", "Common Kitchen", "Social Events"] },
+    { name: "Taj Holiday Village", type: "Luxury",  pricePerNight: 18500, amenities: ["Private Beach", "Pool", "Spa", "Watersports"] },
+    { name: "W Goa",               type: "Luxury",  pricePerNight: 23000, amenities: ["Infinity Pool", "DJ Nights", "Beach Club"] },
+    { name: "Pousada Tauma",        type: "Boutique",pricePerNight: 10000, amenities: ["Quiet Pool", "Garden", "Home-Style Dining"] },
+    { name: "Zostel Goa",          type: "Budget",  pricePerNight: 1500,  amenities: ["Dorms", "Common Kitchen", "Social Events"] },
   ],
   Jaipur: [
-    { name: "Rambagh Palace",  type: "Luxury",  pricePerNight: 450, amenities: ["Heritage Palace", "Polo Ground", "Royal Spa"] },
-    { name: "Samode Haveli",   type: "Boutique",pricePerNight: 200, amenities: ["Courtyard Pool", "Rooftop Dining", "Heritage Rooms"] },
-    { name: "Hotel Pearl Palace",type: "Budget", pricePerNight: 30,  amenities: ["Rooftop Cafe", "Free Wi-Fi", "Auto Rickshaw Help"] },
-    { name: "Zostel Jaipur",   type: "Budget",  pricePerNight: 15,  amenities: ["Dorms", "Social Activities", "Tours"] },
+    { name: "Rambagh Palace",  type: "Luxury",  pricePerNight: 37500, amenities: ["Heritage Palace", "Polo Ground", "Royal Spa"] },
+    { name: "Samode Haveli",   type: "Boutique",pricePerNight: 16500, amenities: ["Courtyard Pool", "Rooftop Dining", "Heritage Rooms"] },
+    { name: "Hotel Pearl Palace",type: "Budget", pricePerNight: 2500,  amenities: ["Rooftop Cafe", "Free Wi-Fi", "Auto Rickshaw Help"] },
+    { name: "Zostel Jaipur",   type: "Budget",  pricePerNight: 1250,  amenities: ["Dorms", "Social Activities", "Tours"] },
   ],
   Kyoto: [
     { name: "Tawaraya Ryokan", type: "Luxury",  pricePerNight: 900, amenities: ["Traditional Kaiseki", "Hot Spring Bath", "Tea Ceremony"] },
@@ -170,6 +182,13 @@ const DEFAULT_HOTELS = [
   { name: "Budget Traveller Lodge", type: "Budget",   pricePerNight: 45,  amenities: ["Free Wi-Fi", "Common Kitchen", "Locker"] },
 ];
 
+const DEFAULT_HOTELS_INR = [
+  { name: "Heritage Grand Hotel",   type: "Luxury",   pricePerNight: 32000, amenities: ["Rooftop Pool", "Spa", "Fine Dining", "Concierge"] },
+  { name: "Boutique Haveli Inn",    type: "Boutique", pricePerNight: 15000, amenities: ["Curated Art", "Yoga Class", "Local Breakfast"] },
+  { name: "City View Residency",    type: "Boutique", pricePerNight: 12000, amenities: ["City View", "Gym", "Free Breakfast"] },
+  { name: "Budget Yatri Lodge",     type: "Budget",   pricePerNight: 3750,  amenities: ["Free Wi-Fi", "Common Kitchen", "Locker"] },
+];
+
 function generateRating(type) {
   const base = { Luxury: 4.5, Boutique: 4.2, Budget: 3.8 }[type] ?? 4.0;
   return Math.round((base + Math.random() * 0.4) * 10) / 10;
@@ -179,7 +198,7 @@ function getHotels(destination) {
   for (const [key, hotels] of Object.entries(HOTEL_DATA)) {
     if (destination.toLowerCase().includes(key.toLowerCase())) return hotels;
   }
-  return DEFAULT_HOTELS;
+  return isIndianDestination(destination) ? DEFAULT_HOTELS_INR : DEFAULT_HOTELS;
 }
 
 export function fetchHotelRatings(destination) {
@@ -189,7 +208,11 @@ export function fetchHotelRatings(destination) {
         ...h,
         rating: generateRating(h.type),
       }));
-      resolve({ destination, hotels });
+      resolve({
+        destination,
+        hotels,
+        currency: isIndianDestination(destination) ? "INR" : "USD",
+      });
     }, 900);
   });
 }
