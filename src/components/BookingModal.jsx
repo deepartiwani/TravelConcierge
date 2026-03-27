@@ -50,7 +50,7 @@ const HOTEL_TYPE_STYLES = {
 
 // Step 1 — Itinerary Review
 function ItineraryStep({ destination, weatherData, flightData, hotelData, itinerary, selectedHotel, setSelectedHotel }) {
-  const topHotel = hotelData?.hotels?.reduce((a, b) => (a.rating > b.rating ? a : b));
+  const topHotel = hotelData?.hotels?.reduce((best, h) => (!best || h.rating > best.rating ? h : best), undefined);
   const displayHotel = selectedHotel ?? topHotel;
   const estimatedTotal = (flightData?.averagePrice ?? 0) + (displayHotel?.pricePerNight ?? 0) * 7;
 
@@ -310,11 +310,14 @@ export default function BookingModal({
   const [bookingId] = useState(generateBookingId);
   const [selectedHotel, setSelectedHotel] = useState(null);
 
+  const topHotel = hotelData?.hotels?.reduce((best, h) => (!best || h.rating > best.rating ? h : best), undefined);
+  const effectiveHotel = selectedHotel ?? topHotel ?? null;
+
   const canAdvance = step === 0 || (step === 1 && travelerName.trim().length > 0);
 
   const handleNext = () => {
     if (step === 1) {
-      onConfirm?.({ destination, travelerName, specialRequests, bookingId, selectedHotel });
+      onConfirm?.({ destination, travelerName, specialRequests, bookingId, selectedHotel: effectiveHotel });
     }
     setStep((s) => Math.min(s + 1, 2));
   };
@@ -358,7 +361,7 @@ export default function BookingModal({
               setTravelerName={setTravelerName}
               specialRequests={specialRequests}
               setSpecialRequests={setSpecialRequests}
-              selectedHotel={selectedHotel}
+              selectedHotel={effectiveHotel}
               hotelCurrency={hotelData?.currency ?? "USD"}
             />
           )}
