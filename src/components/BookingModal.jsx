@@ -43,10 +43,10 @@ function StepIndicator({ current }) {
 }
 
 // Step 1 — Itinerary Review
-function ItineraryStep({ destination, weatherData, flightData, hotelData, itinerary }) {
-  const cheapestHotel = hotelData?.hotels?.reduce((a, b) => (a.pricePerNight < b.pricePerNight ? a : b));
+function ItineraryStep({ destination, weatherData, flightData, hotelData, itinerary, selectedHotel, setSelectedHotel }) {
   const topHotel = hotelData?.hotels?.reduce((a, b) => (a.rating > b.rating ? a : b));
-  const estimatedTotal = (flightData?.averagePrice ?? 0) + (cheapestHotel?.pricePerNight ?? 0) * 7;
+  const displayHotel = selectedHotel ?? topHotel;
+  const estimatedTotal = (flightData?.averagePrice ?? 0) + (displayHotel?.pricePerNight ?? 0) * 7;
 
   const now = new Date();
   const checkIn = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -108,13 +108,13 @@ function ItineraryStep({ destination, weatherData, flightData, hotelData, itiner
         <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
           <div className="flex items-center gap-2 text-amber-600 mb-2">
             <Hotel className="w-4 h-4" />
-            <span className="text-xs font-bold uppercase tracking-wide">Top Hotel</span>
+            <span className="text-xs font-bold uppercase tracking-wide">Your Hotel</span>
           </div>
           {hotelData ? (
             <>
-              <p className="text-sm font-bold text-gray-800 line-clamp-1">{topHotel?.name}</p>
-              <p className="text-lg font-bold text-amber-700">{formatCurrency(topHotel?.pricePerNight, hotelData?.currency ?? "USD")}<span className="text-xs font-normal text-gray-500">/night</span></p>
-              <p className="text-xs text-gray-500 mt-1">⭐ {topHotel?.rating} · {topHotel?.type}</p>
+              <p className="text-sm font-bold text-gray-800 line-clamp-1">{displayHotel?.name}</p>
+              <p className="text-lg font-bold text-amber-700">{formatCurrency(displayHotel?.pricePerNight, hotelData?.currency ?? "USD")}<span className="text-xs font-normal text-gray-500">/night</span></p>
+              <p className="text-xs text-gray-500 mt-1">⭐ {displayHotel?.rating} · {displayHotel?.type}</p>
             </>
           ) : (
             <p className="text-sm text-gray-400">Loading…</p>
@@ -134,6 +134,52 @@ function ItineraryStep({ destination, weatherData, flightData, hotelData, itiner
                 <span className="font-bold text-indigo-600">{formatCurrency(a.price, flightData.currency)}</span>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Hotel Selection */}
+      {hotelData?.hotels && (
+        <div>
+          <h4 className="text-sm font-bold text-gray-700 mb-2">Select Your Hotel</h4>
+          <div className="space-y-2">
+            {hotelData.hotels.map((h) => {
+              const isSelected = (selectedHotel ?? topHotel) === h;
+              return (
+                <button
+                  key={h.name}
+                  onClick={() => setSelectedHotel(h)}
+                  className={[
+                    "w-full flex justify-between items-start px-3 py-3 rounded-lg border text-sm transition-all text-left",
+                    isSelected
+                      ? "bg-amber-50 border-amber-400 ring-1 ring-amber-400"
+                      : "bg-gray-50 border-gray-100 hover:border-amber-200 hover:bg-amber-50/50",
+                  ].join(" ")}
+                >
+                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span className="font-semibold text-gray-800 truncate">{h.name}</span>
+                    <span className="text-xs text-gray-500">{h.type}</span>
+                    {h.amenities?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {h.amenities.slice(0, 3).map((a) => (
+                          <span key={a} className="text-xs bg-amber-100 text-amber-700 rounded px-1.5 py-0.5">{a}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-end gap-0.5 ml-3 shrink-0">
+                    <span className="font-bold text-amber-700">
+                      {formatCurrency(h.pricePerNight, hotelData.currency)}
+                      <span className="text-xs font-normal text-gray-400">/night</span>
+                    </span>
+                    <span className="text-xs text-gray-500">⭐ {h.rating}</span>
+                    {isSelected && (
+                      <span className="text-xs font-bold text-amber-600 mt-1">✓ Selected</span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -169,13 +215,29 @@ function ItineraryStep({ destination, weatherData, flightData, hotelData, itiner
 }
 
 // Step 2 — Confirmation
-function ConfirmStep({ destination, travelerName, setTravelerName, specialRequests, setSpecialRequests }) {
+function ConfirmStep({ destination, travelerName, setTravelerName, specialRequests, setSpecialRequests, selectedHotel, hotelCurrency }) {
   return (
     <div className="space-y-5">
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
         <p className="font-bold mb-1">⚠️ Please Review Before Confirming</p>
         <p>You are about to book a trip to <strong>{destination.name}, {destination.country}</strong>. This is a simulated booking — no real charges will be made.</p>
       </div>
+
+      {selectedHotel && (
+        <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-amber-600 mb-2">Selected Hotel</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-sm font-bold text-gray-800">{selectedHotel.name}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{selectedHotel.type} · ⭐ {selectedHotel.rating}</p>
+            </div>
+            <p className="text-sm font-bold text-amber-700">
+              {formatCurrency(selectedHotel.pricePerNight, hotelCurrency)}
+              <span className="text-xs font-normal text-gray-500">/night</span>
+            </p>
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-1">Traveler Name <span className="text-red-500">*</span></label>
@@ -241,12 +303,13 @@ export default function BookingModal({
   const [travelerName, setTravelerName] = useState("");
   const [specialRequests, setSpecialRequests] = useState("");
   const [bookingId] = useState(generateBookingId);
+  const [selectedHotel, setSelectedHotel] = useState(null);
 
   const canAdvance = step === 0 || (step === 1 && travelerName.trim().length > 0);
 
   const handleNext = () => {
     if (step === 1) {
-      onConfirm?.({ destination, travelerName, specialRequests, bookingId });
+      onConfirm?.({ destination, travelerName, specialRequests, bookingId, selectedHotel });
     }
     setStep((s) => Math.min(s + 1, 2));
   };
@@ -279,6 +342,8 @@ export default function BookingModal({
               flightData={flightData}
               hotelData={hotelData}
               itinerary={itinerary}
+              selectedHotel={selectedHotel}
+              setSelectedHotel={setSelectedHotel}
             />
           )}
           {step === 1 && (
@@ -288,6 +353,8 @@ export default function BookingModal({
               setTravelerName={setTravelerName}
               specialRequests={specialRequests}
               setSpecialRequests={setSpecialRequests}
+              selectedHotel={selectedHotel}
+              hotelCurrency={hotelData?.currency ?? "USD"}
             />
           )}
           {step === 2 && (
