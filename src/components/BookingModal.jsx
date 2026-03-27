@@ -3,6 +3,7 @@ import {
   X, ChevronLeft, ChevronRight, CheckCircle,
   Plane, Hotel, Cloud, DollarSign,
 } from "lucide-react";
+import { formatCurrency } from "../utils/currency";
 
 const STEPS = ["Itinerary Review", "Confirm Details", "Booking Complete"];
 
@@ -94,7 +95,7 @@ function ItineraryStep({ destination, weatherData, flightData, hotelData, itiner
           </div>
           {flightData ? (
             <>
-              <p className="text-2xl font-bold text-gray-800">${flightData.cheapestPrice}</p>
+              <p className="text-2xl font-bold text-gray-800">{formatCurrency(flightData.cheapestPrice, flightData.currency)}</p>
               <p className="text-sm text-indigo-700 font-medium">Economy · Best Fare</p>
               <p className="text-xs text-gray-500 mt-1">{flightData.airlines?.[0]?.name}</p>
             </>
@@ -112,7 +113,7 @@ function ItineraryStep({ destination, weatherData, flightData, hotelData, itiner
           {hotelData ? (
             <>
               <p className="text-sm font-bold text-gray-800 line-clamp-1">{topHotel?.name}</p>
-              <p className="text-lg font-bold text-amber-700">${topHotel?.pricePerNight}<span className="text-xs font-normal text-gray-500">/night</span></p>
+              <p className="text-lg font-bold text-amber-700">{formatCurrency(topHotel?.pricePerNight, hotelData?.currency ?? "USD")}<span className="text-xs font-normal text-gray-500">/night</span></p>
               <p className="text-xs text-gray-500 mt-1">⭐ {topHotel?.rating} · {topHotel?.type}</p>
             </>
           ) : (
@@ -130,7 +131,7 @@ function ItineraryStep({ destination, weatherData, flightData, hotelData, itiner
               <div key={a.name} className="flex justify-between items-center px-3 py-2 rounded-lg bg-gray-50 border border-gray-100 text-sm">
                 <span className="font-medium text-gray-700">{a.name}</span>
                 <span className="text-gray-500 text-xs">{a.duration}</span>
-                <span className="font-bold text-indigo-600">${a.price}</span>
+                <span className="font-bold text-indigo-600">{formatCurrency(a.price, flightData.currency)}</span>
               </div>
             ))}
           </div>
@@ -161,7 +162,7 @@ function ItineraryStep({ destination, weatherData, flightData, hotelData, itiner
           <DollarSign className="w-5 h-5" />
           <span className="font-bold">Estimated Total Cost</span>
         </div>
-        <span className="text-2xl font-extrabold text-green-700">${estimatedTotal.toLocaleString()}</span>
+        <span className="text-2xl font-extrabold text-green-700">{formatCurrency(estimatedTotal, flightData?.currency ?? "USD")}</span>
       </div>
     </div>
   );
