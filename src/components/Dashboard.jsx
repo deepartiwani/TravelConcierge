@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Globe, MapPin, BarChart2 } from "lucide-react";
+import { Globe, MapPin, BarChart2, LogOut, User } from "lucide-react";
 import SearchBar from "./SearchBar.jsx";
 import DestinationGrid from "./DestinationGrid.jsx";
 import BookingModal from "./BookingModal.jsx";
@@ -27,7 +27,7 @@ function fetchEnrichment(destinations, month, setWeatherMap, setFlightMap, setHo
   });
 }
 
-export default function Dashboard() {
+export default function Dashboard({ user, onLogout }) {
   const [selectedMonth, setSelectedMonth] = useState(INITIAL_MONTH);
   const [regionFilter, setRegionFilter] = useState(INITIAL_REGION);
   const [destinations, setDestinations] = useState(() =>
@@ -88,6 +88,23 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* User bar */}
+      {user && (
+        <div className="bg-indigo-700 text-white px-4 sm:px-6 py-2 flex items-center justify-end gap-3 text-sm">
+          <span className="flex items-center gap-1.5 font-medium">
+            <User className="w-4 h-4" />
+            {user.name}
+          </span>
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-1 px-3 py-1 rounded-lg bg-white/15 hover:bg-white/25 transition-colors text-xs font-semibold"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Sign out
+          </button>
+        </div>
+      )}
+
       {/* Header / Search bar */}
       <SearchBar onSearch={handleSearch} isLoading={isLoading} />
 
